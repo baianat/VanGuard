@@ -2,7 +2,7 @@
 An easy-to-use, real-time UI form validation library for Android.
 
 <p align="center">
-  <img src="https://github.com/baianat/VanGuard/blob/master/app/src/main/res/drawable/gif_sample.gif">
+  <img src="https://github.com/baianat/VanGuard/blob/main/app/src/main/res/drawable/gif_sample.gif">
 </p>
  
 ## Installation
