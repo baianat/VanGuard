@@ -1,0 +1,359 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1671\cocoasubrtf500
+{\fonttbl\f0\fmodern\fcharset0 Courier;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;}
+{\*\expandedcolortbl;;\cssrgb\c0\c0\c0;}
+\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\deftab720
+\pard\pardeftab720\sl280\partightenfactor0
+
+\f0\fs24 \cf2 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 # VanGuard\
+A real-time form validation library for Android\
+\
+## Table of content:\
+* [Quick Guide](#quick-guide)\
+* [Structural Components](#structural-components)\
+* [Validating TextFields](#validating-textFields)\
+* [Validating Other Views](#validating-other-views)\
+  - [Spinners](#validating-spinners)\
+  - [SeekBars](#validating-seekbars)\
+  - [Checkables](#validating-checkables-switches-and-checkboxes)\
+  - [RadioGroups](#validating-radiogroups)\
+* [GuardView](#fancyview)\
+\
+\
+## Quick Guide\
+**Define** a set of  validation cases, each of which must include:\
+  * A validaion rule based on which the valid status of the view can be determined as *true or false*.\
+  * The view on which the validaion rule is tested.\
+\
+  ``` kotlin\
+        val nameValidationCase = ValidationCase.ForEditable()\
+            .watch(nameEditText)\
+            .forRule(IsNotEmpty())\
+            .build()\
+            \
+        val acceptTermsValidationCase = ValidationCase.ForCheckable()\
+            .watch(termsCheckBox)\
+            .forRule(IsChecked())\
+            .build()\
+ ```     \
+**Initialize** VanGuard in the *Activity or Frament of interest,* and link it to the validation cases.\
+\
+  ``` kotlin\
+        VanGuard.of(this)\
+            .validate(\
+                nameValidationCase,\
+                acceptTermsValidationCase\
+            )\
+ ``` \
+**Listen** to the Callback for form status changes between being true and false *(optional)*.\
+  ``` kotlin\
+        VanGuard.of(this)\
+            .doOnFormStatusChange \{isFormValid->\
+                \
+            \}\
+ ```\
+ \
+ ## Structural Components\
+ The building blocks of VanGuard are\
+  * Validation Rules\
+  * Validation Cases\
+  \
+  ### Validation Cases\
+  Wrappers that links the view to be validated, with the rule to be validated against.\
+  \
+  Validation cases should be constucted with the appropriate modifier based on the type of the view as follows\
+  \
+  | Modifier  | View |\
+| ------------- | ------------- |\
+| ValidationCase.ForDynamicText()  | Dynamic TextField  |\
+| ValidationCase.ForStaticText()  | Static TextField  |\
+| ValidationCase.ForCheckable()  | CheckBoxes and Switches  |\
+| ValidationCase.ForSpinner()  | Spinners  |\
+| ValidationCase.ForSeekBar()  | SeekBars  |\
+| ValidationCase.ForRadioGroup()  | RadioGroups|\
+ \
+  Optionally each case can have a callback for status change as follows:\
+  \
+  ``` kotlin\
+          val nameValidationCase = ValidationCase.ForEditable()\
+            ...\
+            .doOnValidationStatusChange \{ isValid, v -> \
+                \
+                // isValid is a boolean refering to the current state\
+                // v refers to view being validated\
+                \
+            \}\
+            .build()\
+ ```\
+\
+  ### Validation Rules\
+  Validation Rules are Specified while building the Validation Case.\
+  \
+  Only one property of each view is validated against the validation rules, these properties are..\
+   \
+   | View  | Property being validated |\
+| ------------- | ------------- |\
+| TextFields  | Text  |\
+| Checkables  | Checked state  |\
+| Spinner  | Position of selected view |\
+| RadioGroup  | Id of checked radioButton  |\
+| SeekBar  | Progress  |\
+\
+  **Note:** More than one rule can be tested on TextFiels, yet only one rule can be tested on other views.\
+  **Note:** You can always implement your own rules with any intended behaviour *(Mentioned below)*.\
+\
+ \
+## Validating TextFields\
+   \
+### 1-Dynamic TextField\
+*TextFields that are editable via typing* \
+  \
+Text validation workes based on the following model:\
+\
+  When Focus is gained, i.e. , user starts typing\
+    \
+   -  A hint on what should the user be typing is displayed in a form of a helper text    *(eligible only to TextInputEditText and FancyView)*.\
+   -  Once the text is valid, the helper text is no longer needed and thus it disappears.\
+  \
+  When Focus is lost, i.e. , user stops typing\
+    \
+   - If text is INVALID, an error icon along with the predefined error message are displayed. \
+   - If text is VALID, a valid icon is displayed      *(only eligible to FancyView)*\
+    \
+\
+  \
+  #### Asynchronous validation:          \
+  \
+  It may be necessary after validating the text locally to validate it via some Api call..   \
+  Such as  validating that a text is email locally, and then checks on the server that no user of this email already exist.\
+  \
+  You can simply do thanks to LocalValidationSuccessCallback as follows\
+  \
+  ``` kotlin\
+          val nameValidationCase = ValidationCase.ForEditable()\
+            .watch(nameEditText)\
+            .forRule(IsNotEmpty(errorMsg:"Name can't be empty"))\
+            .doOnLocalValidationSuccess \{ textToFurtherValidate, validationCase ->\
+            \
+                 // textToFurtherValidate is the text to be validated more\
+                 // validationCase refers to this validation case\
+            \
+            \}\
+            .build()\
+ ```            \
+   Once you get the api response, i.e. , the text is determined to be valid or not, you can either:\
+   \
+   * Confirm validation \
+\
+         nameValidationCase.confirmValidation()\
+\
+   * Fail validation\
+   \
+         nameValidatinCase.failValidation("Your error message")\
+            \
+  #### Text Validation Rules:          \
+\
+  - You can use on of the predefined Rules including:\
+  \
+| Rule  | Defintion |\
+| ------------- | ------------- |\
+| IsEmail()  | returns Valid if text is in valid e-mail format, otherwise return invalid  |\
+| IsNotEmpty()  | returns Valid if text is not empty, otherwise return invalid  |\
+| IsPhone()  | returns Valid if text is in valid phone format, otherwise return invalid  |\
+\
+  Other rules can be found [here](/keevalidator/src/main/java/app/baianat/com/keevalidator/rules/TextRules.kt).\
+\
+ *Error and helper messages should be set while defining the rule as follow:*\
+  ``` kotlin\
+         val emailValidationCase = ValidationCase.ForEditable()\
+            .watch(emailEditText)\
+            .forRule(IsEmail(errorMsg: "Please enter a valid email",helperMsg : "Ex: this@this.com"))\
+            .build()\
+ ```            \
+  - Alternativele, you can define your own rule with any desired behaviour, just implement [TextValidationRule](/keevalidator/src/main/java/app/baianat/com/keevalidator/ValidationRules.kt).\
+  For example a rule that check if a text is a gmail can be defined as follows:\
+  \
+  ``` kotlin\
+\
+        class IsGmail(var errorMsg: String? = null, var helperMsg: String? = null) : TextValidationRule() \{\
+          \
+        override fun validate(valueToValidate: String): Boolean \{\
+          \
+        return (Patterns.EMAIL_ADDRESS.matcher(valueToValidate).matches() &&\
+                     valueToValidate.endsWith("@gmail.com"))\
+\
+        override fun getErrorMessage(): String? = errorMsg\
+\
+        override fun getHelperMessage(): String? =helperMsg\
+        \
+        \}\
+        \
+         val isGmailRule =  IsGmail(errorMsg: "Email is not a gamil",helperMsg: "should ends in @gmail.com")\
+          ValidationCase.ForEditable()\
+            .watch(emailEditText)\
+            .forRule(isGmailRule))\
+            .build()\
+ ```            \
+           \
+  - You can use as many rules as you can, each rule is validated separetly and thus its helper and error messages are shown or hidden.\
+  ``` kotlin\
+          val emailValidationCase = ValidationCase.ForEditable()\
+            .watch(emailEditText)\
+            .forRule(IsEmail(errorMsg : "Please enter a valid email",helperMsg : "Ex: this@this.com"))\
+            .forRule(IsLengthGreaterThan(8,errorMsg : "Email is very short",helperMsg : "Email length should be greater than 8 chars!"))\
+            .build()\
+ ```            \
+ \
+ \
+    \
+### 2-Static TextField\
+*TextFields that are not editable via typing* \
+\
+  Sometimes it's necessary to validate a static textfield ..   \
+  Example may be a TextView that displays a date picked from a date picker dialog.\
+  \
+ To validate such a case, build the validation case using  *ForStaticText() modifier* as follow\
+  ``` kotlin\
+          val birthDateValidationCase = ValidationCase.ForStaticText()\
+            .watch(birthdateTextView)\
+            // checks if text is date after 1995/7/1\
+            .forRule(IsTimeAfter(referenceTime : "1995/7/1",pattern : "yyyy/MM/dd",errorMsg : "Birth Date Can't be before 1995/7/1",helperMsg : "Users should be +24 ys old"))\
+            .build()\
+ ```            \
+ \
+ \
+## Validating Other View\
+\
+Following the same steps other views *including Spinners, CheckBoxs, Switchs, RadioGroups and SeekBars* can be validated the same way.\
+        \
+          \
+   ### Validating Spinners\
+\
+   To validate Spinners, build the validation case using  *ForSpinner() modifier* as follows\
+  ``` kotlin\
+        val countryValidationCase = ValidationCase.ForCheckable()\
+            .watch(termsCheckBox)\
+            .forRule(IsPositionIncludedIn(validPositionsSet : arrayOf(3,4,5)))\
+            .doOnValidationStatusChange \{ isValid, view -> \
+                                \
+            \}\
+            .build()\
+ ```            \
+   ### Validating SeekBars\
+\
+   To validate SeekbBrs, build the validation case using  *ForSeekBar() modifier* as follows\
+  ``` kotlin\
+        val ageValidationCase = ValidationCase.ForSeekBar()\
+            .watch(termsCheckBox)\
+            .forRule(IsProgressComparedTo(referenceProgress: 20, condition : GREATER_THAN_OR_EQUAL))\
+            .doOnValidationStatusChange \{ isValid, view -> \
+                                \
+            \}\
+            .build()\
+ ```            \
+     \
+   ### Validating Checkables *(switches and CheckBoxes)*\
+   \
+   To validate Checkables, build the validation case using  *ForCheckable() modifier* as follows\
+  ``` kotlin\
+        val termsValidationCase = ValidationCase.ForCheckable()\
+            .watch(termsCheckBox)\
+            .forRule(IsChecked())\
+            .doOnValidationStatusChange \{ isValid, view -> \
+                                \
+            \}\
+            .build()\
+ ```    \
+   ### Validating RadioGroups\
+\
+   To validate RadioGroups, build the validation case using  *ForRadioGroup() modifier* as follows\
+  ``` kotlin\
+        val genderValidationCase = ValidationCase.ForRadioGroup()\
+            .watch(termsCheckBox)\
+            .forRule(IsOneChecked())\
+            .doOnValidationStatusChange \{ isValid, view -> \
+                                \
+            \}\
+            .build()\
+ ```            \
+   ### Notes:\
+\
+   * As with other validation cases, you can use on of the predefined rules [here](/keevalidator/src/main/java/app/baianat/com/keevalidator/rules/WidgetRules.kt), or define one with your desired behaviour by implementing [WidgetValidationRule<T>](/keevalidator/src/main/java/app/baianat/com/keevalidator/ValidationRules.kt)\
+  \
+  For example, a rule that can be tested on a seekbar to check if progress is greater than 30 can be defined as follows:\
+   \
+   ``` kotlin\
+         class IsProgressAbove30() : WidgetValidationRule<Int>() \{\
+             override fun validate(valueToValidate: Int): ValidationStatus \{\
+                 return (valueToValidate > 30)\
+             \}\
+         \}\
+         \
+        val progressValidationCase = ValidationCase.ForSeekBar()\
+            .watch(termsCheckBox)\
+            .forRule(IsProgressAbove30())\
+            .build()\
+ ```  \
+   \
+   * Since there is no way to set error or helper messages on these views, validation rules can't include them.\
+   \
+   * You can still set messages on these views based on the validation status, a good place to do this in is StatusChangeCallBack..\
+\
+## GuardView\
+  VanGuard is also shipped with GuardView, a custom editText designed with validation in mind.\
+  It can be used instead of the classic EditText in case more visual capabilities are needed as it is almost fully customizable.\
+  \
+  With GuardView you can customize these following attributes in Xml:\
+  \
+  | attribute  | Defintion | Default value |\
+| ------------- | ------------- | ------------- |\
+| hint  | Hint message  | - |\
+| text  | Text   | - |\
+| editable  | Is text dynamic or static   |   True |\
+| hintColor  | Color of hint message | Gray |\
+| textColor  | Color of text   |   Defintion |\
+| errorColor  | Color of error message | Defintion |\
+| helperColor  | Color of helper message | Defintion |\
+| showValidationIcon  | Should show icons based on the validation state | true |\
+| errorIcon  | Icon shown when text is invalid | ![alt text](/keevalidator/src/main/res/drawable/ic_invalid_png.png) |\
+| validIcon  | Icon shown when text is valid | ![alt text](/keevalidator/src/main/res/drawable/ic_valid_png.png) |\
+| iconPosition  | Position of validation icon | top |\
+| iconOffset  | Offset of the icon from left | 0.85 |\
+| backgroundMode  | Is underlined or outlined | outlined |\
+| radiusTopRight  | Raius of top right corner if background mode is outlined  | 12 |\
+| radiusBottomRight  | Raius of bottom right corner if background mode is outlined | 12 |\
+| radiusTopLeft  | Raius of top left corner if background mode is outlined | 12 |\
+| radiusBottomLeft  | Raius of bottom right corner if background mode is outlined | 12 |\
+| inputType  | Type of supported text | - |\
+| showPassToggle | Show toggle icon if input type is password| true |\
+| togglePasswordIcon  | Toggle icon if input type is password | - |\
+\
+You can override any of these attributes, combine them into a style, and apply that style to the fancy views.\
+\
+Just let your style inherit GuardStyle as follows:\
+\
+   ``` xml\
+    <style name="MyStyle" parent="GuardStyle">\
+        <item name="helperColor">@android:color/darker_gray</item>\
+        <item name="errorColor">@android:color/holo_red_light</item>\
+        <item name="hintColor">@android:color/darker_gray</item>\
+        <item name="highlightColor">@color/colorAccent</item>\
+        <item name="android:textColor">@color/colorAccent</item>\
+        <item name="validIcon">@drawable/ic_valid</item>\
+        <item name="errorIcon">@drawable/ic_invalid</item>\
+        <item name="backgroundMode">outlined</item>\
+        <item name="iconPosition">top</item>\
+        <item name="iconOffset">0.95</item>\
+    </style>\
+ ```  \
+Then apply it to your view as follows:\
+\
+   ``` xml\
+        <app.baianat.com.vanguard.views.GuardView\
+                android:layout_width="wrap_content"\
+                android:layout_height="wrap_content"\
+                style="@style/MyStyle"/>\
+ ```  \
+}

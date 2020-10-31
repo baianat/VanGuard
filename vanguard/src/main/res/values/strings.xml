@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="error_native_editText">"Native EditText is not supported as a STATIC FIELD currently, use TextView instead!"</string>
+    <string name="error_view_notDefined">"The view to validate must be defined!"</string>
+</resources>

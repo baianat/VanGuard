@@ -1,0 +1,37 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+
+    <style name="MyStyle" parent="GuardStyle">
+        <item name="helperColor">@android:color/darker_gray</item>
+        <item name="errorColor">@android:color/holo_red_light</item>
+        <item name="hintColor">@android:color/black</item>
+        <item name="highlightColor">@color/colorAccent</item>
+        <item name="android:textColor">@color/colorAccent</item>
+        <item name="validIcon">@drawable/ic_valid</item>
+        <item name="errorIcon">@drawable/ic_invalid</item>
+<!--        <item name="backgroundMode">outlined</item>-->
+        <item name="iconPosition">top</item>
+        <item name="iconOffset">0.95</item>
+    </style>
+
+    <style name="NumberPickerStyle">
+        <item name="android:textSize">22sp</item>
+        <item name="android:textColorPrimary">@color/colorAccent</item>
+        <item name="android:colorControlNormal" tools:targetApi="lollipop">@color/colorAccent</item>
+    </style>
+
+    <style name="AuxActivityTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+</resources>

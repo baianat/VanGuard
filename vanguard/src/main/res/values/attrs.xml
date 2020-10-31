@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="GuardView">
+        <attr name="errorMsg" format="string" localization="suggested"/>
+        <attr name="errorColor" format="color"/>
+
+        <attr name="helperMsg" format="string" localization="suggested"/>
+        <attr name="helperColor" format="color"/>
+
+        <attr name="hint" format="string" localization="suggested"/>
+        <attr name="hintColor" format="color"/>
+
+        <attr name="text" format="string"/>
+        <attr name="textColor" format="color"/>
+
+        <attr name="borderColor" format="color"/>
+        <attr name="highlightColor" format="color"/>
+
+
+        <attr name="errorIcon" format="integer"/>
+
+        <attr name="validIcon" format="integer"/>
+
+        <attr name="editable" format="boolean"/>
+
+
+        <attr name="showValidationIcon" format="boolean"/>
+
+        <attr name="inputType" format="enum">
+            <enum name="email" value="1"/>
+            <enum name="number" value="2"/>
+            <enum name="password" value="3"/>
+            <enum name="phone" value="4"/>
+        </attr>
+
+        <attr name="radiusTopRight" format="dimension"/>
+        <attr name="radiusBottomRight" format="dimension"/>
+        <attr name="radiusTopLeft" format="dimension"/>
+        <attr name="radiusBottomLeft" format="dimension"/>
+
+        <attr name="showPassToggle" format="boolean"/>
+        <attr name="togglePasswordIcon" format="integer"/>
+
+        <attr name="iconOffset" format="float"/>
+        <attr name="iconPosition" format="enum">
+            <enum name="top" value="1"/>
+            <enum name="bottom" value="2"/>
+        </attr>
+
+        <attr name="backgroundMode">
+            <enum name="underlined" value="1"/>
+            <enum name="outlined" value="2"/>
+        </attr>
+
+    </declare-styleable>
+
+
+    <style name="GuardStyle">
+        <item name="helperColor">@android:color/darker_gray</item>
+        <item name="errorColor">@android:color/holo_red_light</item>
+        <item name="hintColor">@android:color/darker_gray</item>
+        <item name="highlightColor">@color/colorAccent</item>
+        <item name="android:textColor">@color/colorAccent</item>
+        <item name="validIcon">@drawable/ic_valid</item>
+        <item name="errorIcon">@drawable/ic_invalid</item>
+        <item name="backgroundMode">outlined</item>
+        <item name="iconPosition">top</item>
+        <item name="iconOffset">0.95</item>
+        <item name="radiusBottomLeft">@dimen/defaultRadius</item>
+        <item name="radiusBottomRight">@dimen/defaultRadius</item>
+        <item name="radiusTopLeft">@dimen/defaultRadius</item>
+        <item name="radiusTopRight">@dimen/defaultRadius</item>
+
+    </style>
+
+    <dimen name="defaultRadius">14dp</dimen>
+
+</resources>

@@ -1,0 +1,2 @@
+include ':app', ':vanguard'
+rootProject.name='Demo App'
